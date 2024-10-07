@@ -1,5 +1,7 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
+import jakarta.validation.constraints.Past;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ public class ExpenseDTO {
     private String description;
     private BigDecimal amount;
     private String category;
+
+    @Past(message = "DATE_INVALID")
     private LocalDateTime expenseDate;
 
     private int page = 0;

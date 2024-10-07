@@ -1,11 +1,14 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import com.smartexpense.smart_expense_tracker.converter.RoleConverter;
 import com.smartexpense.smart_expense_tracker.converter.UserConverter;
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
 import com.smartexpense.smart_expense_tracker.entity.User;
-import com.smartexpense.smart_expense_tracker.enums.Role;
+import com.smartexpense.smart_expense_tracker.entity.Role;
+import com.smartexpense.smart_expense_tracker.enums.Roles;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
+import com.smartexpense.smart_expense_tracker.repository.RoleRepository;
 import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 @Service
 public class UserService implements IUserService {
@@ -25,6 +30,11 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
     @Autowired
     private UserConverter userConverter;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private RoleConverter roleConverter;
+
 
     @Override
     public UserDTO create(UserDTO dto) {
@@ -35,9 +45,11 @@ public class UserService implements IUserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.MEMBER.name());
-        user.setRoles(roles);
+        Set<Role> role = new HashSet<>();
+        Role adminRole = roleRepository.findByName(Roles.ADMIN.name())
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        role.add(adminRole);
+        user.setRoles(role);
 
         userRepository.save(user);
         return userConverter.toDTO(user);
@@ -62,10 +74,11 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO update(String userId, UserDTO userDTO) {
-        User user = userConverter.toEntity(get(userId));
-
-        user.setRoles(userDTO.getRoles());
-        user.setPassword(userDTO.getPassword());
+        User user = userConverter.toEntity(userRepository.findById(userId).get(), userDTO);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        var roles = roleRepository.findAllById(userDTO.getRoles());
+        user.setRoles(new HashSet<>(roles));
         userRepository.save(user);
 
         return userConverter.toDTO(user);

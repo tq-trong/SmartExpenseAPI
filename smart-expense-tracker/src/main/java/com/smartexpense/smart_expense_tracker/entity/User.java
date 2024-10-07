@@ -1,6 +1,7 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 
 import java.util.Set;
 
@@ -8,7 +9,9 @@ import java.util.Set;
 public class User extends Base{
     private String username;
     private String password;
-    private Set<String> roles;
+
+    @ManyToMany
+    private Set<Role> roles;
 
     // Getters and Setters
     public String getUsername() {
@@ -27,11 +30,11 @@ public class User extends Base{
         this.password = password;
     }
 
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 }

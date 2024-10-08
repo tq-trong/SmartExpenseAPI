@@ -13,6 +13,7 @@ public class User extends Base{
     @ManyToMany
     private Set<Role> roles;
 
+
     // Getters and Setters
     public String getUsername() {
         return username;

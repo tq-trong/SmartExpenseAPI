@@ -13,7 +13,9 @@ public enum ErrorCode {
     DATE_INVALID(1006, "Date is invalid!", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     ROLE_NOT_FOUND(1008, "Role is invalid", HttpStatus.BAD_REQUEST),
-    PERMISSION_NOT_FOUND(1009, "Permission is invalid", HttpStatus.BAD_REQUEST)
+    PERMISSION_NOT_FOUND(1009, "Permission is invalid", HttpStatus.BAD_REQUEST),
+    ALREADY_INVITED(1010, "You has already invited this user!", HttpStatus.BAD_REQUEST),
+    STATUS_NOT_FOUND(1011, "Status is invalid", HttpStatus.BAD_REQUEST)
     ;
     private int code;
     private String message;

@@ -32,7 +32,7 @@ public class UserConverter {
         dto.setPassword(entity.getPassword());
         dto.setRoles(
                 entity.getRoles().stream()
-                        .map(Role::getName)  // Chuyển đổi từ Role entity sang tên Role (String)
+                        .map(roleConverter::toDTO)
                         .collect(Collectors.toSet())
         );
         dto.setCreatedDate(entity.getCreatedDate());

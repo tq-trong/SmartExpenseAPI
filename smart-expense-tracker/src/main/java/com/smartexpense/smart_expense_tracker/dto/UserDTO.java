@@ -11,7 +11,7 @@ public class UserDTO extends BaseDTO<UserDTO>{
     @Size(min = 6, message = "PASSWORD_INVALID")
     private String password;
 
-    private Set<String> roles;
+    private Set<RoleDTO> roles;
 
     public String getUsername() {
         return username;
@@ -29,11 +29,11 @@ public class UserDTO extends BaseDTO<UserDTO>{
         this.password = password;
     }
 
-    public Set<String> getRoles() {
+    public Set<RoleDTO> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<RoleDTO> roles) {
         this.roles = roles;
     }
 }

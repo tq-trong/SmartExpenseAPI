@@ -30,6 +30,12 @@ public class RoleConverter {
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
 
+        dto.setPermissions(
+                entity.getPermissions().stream()
+                        .map(permissionConverter::toDTO)
+                        .collect(Collectors.toSet())
+        );
+
         return dto;
     }
 }

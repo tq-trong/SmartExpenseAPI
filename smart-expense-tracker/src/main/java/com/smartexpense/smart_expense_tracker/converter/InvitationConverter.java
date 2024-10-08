@@ -1,0 +1,32 @@
+package com.smartexpense.smart_expense_tracker.converter;
+
+import com.smartexpense.smart_expense_tracker.dto.InvitationDTO;
+import com.smartexpense.smart_expense_tracker.entity.Invitation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class InvitationConverter {
+    @Autowired
+    private StatusConverter statusConverter;
+
+    @Autowired
+    private UserConverter userConverter;
+
+    public Invitation toEntity(InvitationDTO dto) {
+        Invitation invitation = new Invitation();
+        return invitation;
+    }
+
+    public InvitationDTO toDTO(Invitation entity) {
+        InvitationDTO dto = new InvitationDTO();
+        if(entity.getId() != null) dto.setId(entity.getId());
+
+        dto.setInviter(userConverter.toDTO(entity.getInviter()));
+        dto.setInvitee(entity.getInvitee().getUsername());
+        dto.setStatus(statusConverter.toDTO(entity.getStatus()));
+        dto.setCreatedDate(entity.getCreatedDate());
+
+        return dto;
+    }
+}

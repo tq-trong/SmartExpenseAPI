@@ -105,7 +105,7 @@ public class AuthenticationService implements IAuthenticationService {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if(!CollectionUtils.isEmpty(user.getRoles()))
             user.getRoles().forEach(role -> {
-                stringJoiner.add(role.getName());
+                stringJoiner.add("ROLE_" + role.getName());
                 if(!CollectionUtils.isEmpty(role.getPermissions()))
                     role.getPermissions()
                             .forEach(permission -> stringJoiner.add(permission.getName()));

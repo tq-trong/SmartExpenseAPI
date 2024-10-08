@@ -1,7 +1,10 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import com.smartexpense.smart_expense_tracker.converter.PermissionConverter;
 import com.smartexpense.smart_expense_tracker.converter.RoleConverter;
+import com.smartexpense.smart_expense_tracker.dto.PermissionDTO;
 import com.smartexpense.smart_expense_tracker.dto.RoleDTO;
+import com.smartexpense.smart_expense_tracker.entity.Permission;
 import com.smartexpense.smart_expense_tracker.entity.Role;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
@@ -12,11 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleService implements IRoleService {
     @Autowired
     private RoleConverter roleConverter;
+    @Autowired
+    private PermissionConverter permissionConverter;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -24,12 +31,13 @@ public class RoleService implements IRoleService {
 
     @Override
     public RoleDTO create(RoleDTO dto) {
-        Role role = new Role();
-        role = roleConverter.toEntity(dto);
+        Role role = roleConverter.toEntity(dto);
 
-        var permissions = permissionRepository.findAllById(dto.getPermissions());
-        role.setPermissions(new HashSet<>(permissions));
+        Set<Permission> permissions = dto.getPermissions().stream()
+                .map(permissionDTO -> permissionConverter.toEntity(permissionDTO))
+                .collect(Collectors.toSet());
 
+        role.setPermissions(permissions);
         roleRepository.save(role);
 
         return roleConverter.toDTO(role);

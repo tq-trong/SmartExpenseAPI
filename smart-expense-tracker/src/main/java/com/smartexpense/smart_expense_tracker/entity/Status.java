@@ -1,21 +1,20 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Id;
 
 @Entity
-public class Log extends Base{
-    @ManyToOne
-    private User user;
-
+public class Status {
+    @Id
+    private String statusCode;
     private String description;
 
-    public User getUser() {
-        return user;
+    public String getStatusCode() {
+        return statusCode;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getDescription() {

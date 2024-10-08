@@ -6,13 +6,13 @@ public class RoleDTO{
     private String name;
     private String description;
 
-    Set<String> permissions;
+    Set<PermissionDTO> permissions;
 
-    public Set<String> getPermissions() {
+    public Set<PermissionDTO> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(Set<String> permissions) {
+    public void setPermissions(Set<PermissionDTO> permissions) {
         this.permissions = permissions;
     }
 

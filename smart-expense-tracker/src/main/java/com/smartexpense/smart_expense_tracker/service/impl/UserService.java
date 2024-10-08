@@ -77,7 +77,9 @@ public class UserService implements IUserService {
         User user = userConverter.toEntity(userRepository.findById(userId).get(), userDTO);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        var roles = roleRepository.findAllById(userDTO.getRoles());
+        Set<Role> roles = userDTO.getRoles().stream()
+                        .map(roleConverter::toEntity)
+                                .collect(Collectors.toSet());
         user.setRoles(new HashSet<>(roles));
         userRepository.save(user);
 

@@ -8,13 +8,20 @@ public class ApiResponse<T> {
     private String message;
     private T result;
 
+    private int page = 0;
+    private int totalPage = 0;
+    private int limitItem = 10;
+
     public ApiResponse() {
     }
 
-    public ApiResponse(int code, String message, T result) {
+    public ApiResponse(int code, String message, T result, int page, int totalPage, int limitItem) {
         this.code = code;
         this.message = message;
         this.result = result;
+        this.page = page;
+        this.totalPage = totalPage;
+        this.limitItem = limitItem;
     }
 
     public int getCode() {
@@ -40,4 +47,29 @@ public class ApiResponse<T> {
     public void setResult(T result) {
         this.result = result;
     }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(long totalItems, long limit) {
+        this.totalPage = (int) Math.ceil((double) totalItems / limit);
+    }
+
+    public int getLimitItem() {
+        return limitItem;
+    }
+
+    public void setLimitItem(int limitItem) {
+        this.limitItem = limitItem;
+    }
+
 }

@@ -15,6 +15,8 @@ public class InvitationConverter {
 
     public Invitation toEntity(InvitationDTO dto) {
         Invitation invitation = new Invitation();
+        if (dto.getStatus() != null)
+            invitation.setStatus(statusConverter.toEntity(dto.getStatus()));
         return invitation;
     }
 
@@ -28,5 +30,11 @@ public class InvitationConverter {
         dto.setCreatedDate(entity.getCreatedDate());
 
         return dto;
+    }
+
+    public Invitation toEntity(Invitation entity, InvitationDTO dto) {
+        entity.setStatus(statusConverter.toEntity(dto.getStatus()));
+
+        return entity;
     }
 }

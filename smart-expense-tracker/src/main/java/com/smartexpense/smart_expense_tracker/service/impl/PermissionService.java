@@ -30,6 +30,6 @@ public class PermissionService implements IPermissionService {
     @Override
     public PermissionDTO get(String id) {
         return permissionConverter.toDTO(permissionRepository.findById(id).
-                orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_FOUND)));
+                orElseThrow(() -> new AppException(ErrorCode.PERMISSION_INVALID)));
     }
 }

@@ -46,7 +46,7 @@ public class UserService implements IUserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Set<Role> role = new HashSet<>();
-        Role adminRole = roleRepository.findByName(Roles.ADMIN.name())
+        Role adminRole = roleRepository.findByName(Roles.USER.name())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         role.add(adminRole);
         user.setRoles(role);
@@ -74,7 +74,8 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO update(String userId, UserDTO userDTO) {
-        User user = userConverter.toEntity(userRepository.findById(userId).get(), userDTO);
+        User user = userConverter.toEntity(userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)), userDTO);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         Set<Role> roles = userDTO.getRoles().stream()
@@ -85,4 +86,24 @@ public class UserService implements IUserService {
 
         return userConverter.toDTO(user);
     }
+
+    @Override
+    public void updateUserRole(UserDTO userDTO, String role) {
+        User user = userRepository.findById(userDTO.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Delete current roles
+        user.getRoles().clear();
+
+        // Add new role
+        Set<Role> newRoles = new HashSet<>();
+        Role roleUpdate = roleRepository.findByName(role)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        newRoles.add(roleUpdate);
+
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
+
 }

@@ -1,13 +1,10 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
-import com.smartexpense.smart_expense_tracker.dto.RoleDTO;
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
-import com.smartexpense.smart_expense_tracker.entity.Role;
 import com.smartexpense.smart_expense_tracker.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 

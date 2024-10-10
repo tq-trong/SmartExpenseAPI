@@ -10,8 +10,8 @@ public class StatusConverter {
     public Status toEntity(StatusDTO dto) {
         Status entity = new Status();
 
-        //entity.setStatusCode(dto.getStatusCode());
-        //entity.setDescription(dto.getDescription());
+        entity.setStatusCode(dto.getStatusCode());
+        entity.setDescription(dto.getDescription());
 
         return entity;
     }

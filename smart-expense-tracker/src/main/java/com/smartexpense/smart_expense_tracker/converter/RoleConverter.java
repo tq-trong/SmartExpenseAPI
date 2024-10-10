@@ -1,14 +1,10 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
-import com.smartexpense.smart_expense_tracker.dto.PermissionDTO;
 import com.smartexpense.smart_expense_tracker.dto.RoleDTO;
-import com.smartexpense.smart_expense_tracker.entity.Permission;
 import com.smartexpense.smart_expense_tracker.entity.Role;
-import com.smartexpense.smart_expense_tracker.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component

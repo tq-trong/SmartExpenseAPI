@@ -1,6 +1,6 @@
 package com.smartexpense.smart_expense_tracker.enums;
 
-public enum Status {
+public enum InvitationStatus {
     PENDING,
     ACCEPTED,
     REJECTED

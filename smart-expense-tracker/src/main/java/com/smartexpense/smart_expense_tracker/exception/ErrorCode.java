@@ -13,9 +13,14 @@ public enum ErrorCode {
     DATE_INVALID(1006, "Date is invalid!", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     ROLE_NOT_FOUND(1008, "Role is invalid", HttpStatus.BAD_REQUEST),
-    PERMISSION_NOT_FOUND(1009, "Permission is invalid", HttpStatus.BAD_REQUEST),
+    PERMISSION_INVALID(1009, "You cannot have permission!", HttpStatus.BAD_REQUEST),
     ALREADY_INVITED(1010, "You has already invited this user!", HttpStatus.BAD_REQUEST),
-    STATUS_NOT_FOUND(1011, "Status is invalid", HttpStatus.BAD_REQUEST)
+    STATUS_NOT_FOUND(1011, "Status is invalid", HttpStatus.BAD_REQUEST),
+    INVITATION_NOT_EXISTED(1012, "This invitation is invalid", HttpStatus.BAD_REQUEST),
+    FAMILY_NOT_EXISTED(1013,"Family not existed", HttpStatus.BAD_REQUEST),
+    UPDATE_PENDING_INVITATION(1014, "Only invitations with status PENDING can be updated!", HttpStatus.BAD_REQUEST),
+    UPDATE_ACCEPTED_INVITATION(1015, "You have already family!", HttpStatus.BAD_REQUEST),
+    INVITER_CANNOT_INVITE(1016, "You cannot invite others", HttpStatus.BAD_REQUEST)
     ;
     private int code;
     private String message;

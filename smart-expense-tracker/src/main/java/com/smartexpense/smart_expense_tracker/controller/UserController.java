@@ -22,17 +22,26 @@ public class UserController {
     }
 
     @GetMapping("/myInfo")
-    public UserDTO getMyInfo() {
-        return userService.getMyInfo();
+    public ApiResponse<UserDTO> getMyInfo() {
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.getMyInfo());
+
+        return apiResponse;
     }
 
     @GetMapping("/{userId}")
-    public UserDTO getUser(@PathVariable("userId") String userId) {
-        return userService.get(userId);
+    public ApiResponse<UserDTO>  getUser(@PathVariable("userId") String userId) {
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.get(userId));
+
+        return apiResponse;
     }
 
     @PutMapping("/{userId}")
-    public UserDTO updateUser(@PathVariable("userId") String userId, @RequestBody UserDTO dto) {
-        return userService.update(userId,dto);
+    public ApiResponse<UserDTO>  updateUser(@PathVariable("userId") String userId, @RequestBody UserDTO dto) {
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.update(userId,dto));
+
+        return apiResponse;
     }
 }

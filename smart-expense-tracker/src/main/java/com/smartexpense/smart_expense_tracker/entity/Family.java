@@ -24,7 +24,7 @@ public class Family extends Base{
         return user;
     }
 
-    public void setUseer(Set<User> user) {
+    public void setUser(Set<User> user) {
         this.user = user;
     }
 }

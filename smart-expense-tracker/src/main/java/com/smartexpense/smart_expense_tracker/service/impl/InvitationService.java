@@ -11,6 +11,7 @@ import com.smartexpense.smart_expense_tracker.entity.Invitation;
 import com.smartexpense.smart_expense_tracker.entity.Status;
 import com.smartexpense.smart_expense_tracker.entity.User;
 import com.smartexpense.smart_expense_tracker.enums.InvitationStatus;
+import com.smartexpense.smart_expense_tracker.enums.LogAction;
 import com.smartexpense.smart_expense_tracker.enums.Roles;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,6 +80,9 @@ public class InvitationService implements IInvitationService {
         User invitee = userRepository.findByUsername(dto.getInvitee())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        if(familyRepository.findByUser(invitee.getUsername()).isPresent())
+            throw new AppException(ErrorCode.INVITEE_HAS_ALREADY_FAMILY);
+
         Status status = statusRepository.findByStatusCode(InvitationStatus.PENDING.name())
                 .orElseThrow(() -> new AppException(ErrorCode.STATUS_NOT_FOUND));
 
@@ -91,6 +96,7 @@ public class InvitationService implements IInvitationService {
             throw new AppException(ErrorCode.ALREADY_INVITED);
 
         invitationRepository.save(invitation);
+
         return invitationConverter.toDTO(invitation);
 
     }
@@ -109,10 +115,7 @@ public class InvitationService implements IInvitationService {
 
         Page<Invitation> invitations;
 
-        if (search != null && !search.isEmpty())
-            invitations = invitationRepository.findByInviteeAndInviterUsername(user, search, pageable);
-        else
-            invitations = invitationRepository.findByInvitee(user, pageable);
+        invitations = invitationRepository.findByInviteeAndInviterUsername(user, search, pageable);
 
         return invitations.stream()
                 .map(invitationConverter::toDTO)
@@ -129,8 +132,7 @@ public class InvitationService implements IInvitationService {
         User invitee = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        User userUpdate = invitation.getInvitee();
-        if (!userUpdate.equals(invitee))
+        if (!invitation.getInvitee().equals(invitee))
             throw new AppException(ErrorCode.PERMISSION_INVALID);
 
         if (!oldStatus.equals(InvitationStatus.PENDING.name()))
@@ -183,14 +185,9 @@ public class InvitationService implements IInvitationService {
     }
 
     @Override
-    public int totalItems(String username, Pageable pageable) {
-       if(username != null && !username.isEmpty())
-           return getInvitations(username, pageable).size();
-       else {
-           User invitee = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
-                   .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-           return invitationRepository.countByInvitee(invitee);
-       }
+    public long totalItems(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return invitationRepository.findByInviteeAndInviterUsername(user, username, pageable).getTotalElements();
     }
 }

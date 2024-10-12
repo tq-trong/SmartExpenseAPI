@@ -20,7 +20,9 @@ public enum ErrorCode {
     FAMILY_NOT_EXISTED(1013,"Family not existed", HttpStatus.BAD_REQUEST),
     UPDATE_PENDING_INVITATION(1014, "Only invitations with status PENDING can be updated!", HttpStatus.BAD_REQUEST),
     UPDATE_ACCEPTED_INVITATION(1015, "You have already family!", HttpStatus.BAD_REQUEST),
-    INVITER_CANNOT_INVITE(1016, "You cannot invite others", HttpStatus.BAD_REQUEST)
+    INVITER_CANNOT_INVITE(1016, "You cannot invite others", HttpStatus.BAD_REQUEST),
+    EXPENSE_NOT_EXISTED(1017, "Expense not existed!", HttpStatus.BAD_REQUEST),
+    INVITEE_HAS_ALREADY_FAMILY(1018, "This user has already family", HttpStatus.BAD_REQUEST)
     ;
     private int code;
     private String message;

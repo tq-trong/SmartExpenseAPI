@@ -12,11 +12,12 @@ import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
 import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IFamilyService;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.smartexpense.smart_expense_tracker.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 
@@ -33,6 +34,9 @@ public class FamilyService implements IFamilyService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private IUserService userService;
 
     @Override
     public FamilyDTO updateFamily(String familyId, String username) {
@@ -62,5 +66,24 @@ public class FamilyService implements IFamilyService {
         familyRepository.save(family);
 
         return familyConverter.toDTO(family);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public void deleteMember(String username) {
+        User member = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        User admin = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Family familyOfAdmin = familyRepository.findByUser(admin.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+        if(familyOfAdmin.getUser().contains(member)) {
+            familyOfAdmin.getUser().remove(member);
+            familyRepository.save(familyOfAdmin);
+        }
+        else
+            throw new AppException(ErrorCode.PERMISSION_INVALID);
     }
 }

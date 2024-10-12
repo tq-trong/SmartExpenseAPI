@@ -29,10 +29,10 @@ public class UserController {
         return apiResponse;
     }
 
-    @GetMapping("/{userId}")
-    public ApiResponse<UserDTO>  getUser(@PathVariable("userId") String userId) {
+    @GetMapping("/{username}")
+    public ApiResponse<UserDTO>  getUser(@PathVariable("username") String username) {
         ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.get(userId));
+        apiResponse.setResult(userService.get(username));
 
         return apiResponse;
     }

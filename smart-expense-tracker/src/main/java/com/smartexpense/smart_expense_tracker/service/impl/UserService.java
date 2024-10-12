@@ -1,17 +1,25 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import com.smartexpense.smart_expense_tracker.converter.LogConverter;
 import com.smartexpense.smart_expense_tracker.converter.RoleConverter;
 import com.smartexpense.smart_expense_tracker.converter.UserConverter;
+import com.smartexpense.smart_expense_tracker.dto.LogDTO;
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
+import com.smartexpense.smart_expense_tracker.entity.Family;
+import com.smartexpense.smart_expense_tracker.entity.Log;
 import com.smartexpense.smart_expense_tracker.entity.User;
 import com.smartexpense.smart_expense_tracker.entity.Role;
 import com.smartexpense.smart_expense_tracker.enums.Roles;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
+import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
+import com.smartexpense.smart_expense_tracker.repository.LogRepository;
 import com.smartexpense.smart_expense_tracker.repository.RoleRepository;
 import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +42,12 @@ public class UserService implements IUserService {
     private RoleRepository roleRepository;
     @Autowired
     private RoleConverter roleConverter;
+    @Autowired
+    private FamilyRepository familyRepository;
+    @Autowired
+    private LogConverter logConverter;
+    @Autowired
+    private LogRepository logRepository;
 
 
     @Override
@@ -65,13 +79,20 @@ public class UserService implements IUserService {
         return userConverter.toDTO(user);
     }
 
-    @PreAuthorize("returnObject.username == authentication.name")
     @Override
-    public UserDTO get(String id) {
-        return userConverter.toDTO(userRepository.findById(id).
-                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    public UserDTO get(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Family family = familyRepository.findByUser(getMyInfo().getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+
+        if(family.getUser().contains(user))
+            return userConverter.toDTO(user);
+        else
+            throw new AppException(ErrorCode.PERMISSION_INVALID);
     }
 
+    @PreAuthorize("returnObject.username == authentication.name")
     @Override
     public UserDTO update(String userId, UserDTO userDTO) {
         User user = userConverter.toEntity(userRepository.findById(userId)
@@ -104,6 +125,44 @@ public class UserService implements IUserService {
 
         user.setRoles(newRoles);
         userRepository.save(user);
+    }
+
+    @Override
+    public Set<UserDTO> getMembers(String search, Pageable pageable) {
+        User user = userRepository.findByUsername(getMyInfo().getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Family family = familyRepository.findByUser(user.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+
+        Page<User> users;
+        users = userRepository.findUsersExceptOne(search, family.getId(), user.getUsername(), pageable);
+
+        return users.stream()
+                .map(userConverter::toDTO)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public long totalMembers(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(getMyInfo().getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Family family = familyRepository.findByUser(user.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+
+        return userRepository.findUsersExceptOne(username, family.getId(), user.getUsername(), pageable).getTotalElements();
+    }
+
+    @Override
+    public LogDTO createLog(String username, String description) {
+        Log log = new Log();
+        log.setUser(userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+        log.setDescription(description);
+
+        logRepository.save(log);
+        return logConverter.toDTO(log);
     }
 
 }

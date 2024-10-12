@@ -13,7 +13,6 @@ public class ExpenseConverter {
     public Expense toEntity(ExpenseDTO dto) {
         Expense entity = new Expense();
 
-        entity.setUser(userConverter.toEntity(dto.getUser()));
         entity.setDescription(dto.getDescription());
         entity.setCategory(dto.getCategory());
         entity.setAmount(dto.getAmount());
@@ -25,7 +24,7 @@ public class ExpenseConverter {
         ExpenseDTO dto = new ExpenseDTO();
         if(entity.getId() != null) dto.setId(entity.getId());
 
-        dto.setUser(userConverter.toDTO(entity.getUser()));
+        dto.setUsername(entity.getUser().getUsername());
         dto.setDescription(entity.getDescription());
         dto.setCategory(entity.getCategory());
         dto.setAmount(entity.getAmount());
@@ -35,7 +34,7 @@ public class ExpenseConverter {
     }
 
     public Expense toEntity(Expense entity, ExpenseDTO dto) {
-        entity.setUser(userConverter.toEntity(dto.getUser()));
+        //entity.setUser(userConverter.toEntity(dto.getUser()));
         entity.setDescription(dto.getDescription());
         entity.setCategory(dto.getCategory());
         entity.setAmount(dto.getAmount());

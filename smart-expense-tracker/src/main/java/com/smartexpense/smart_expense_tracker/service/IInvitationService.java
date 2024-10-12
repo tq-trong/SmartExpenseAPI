@@ -8,5 +8,5 @@ import java.util.Set;
 public interface IInvitationService extends IBaseService<InvitationDTO>{
     Set<InvitationDTO> getInvitations(String search, Pageable pageable);
     InvitationDTO updateInvitation(String invitationId, InvitationDTO dto);
-    int totalItems(String username, Pageable pageable);
+    long totalItems(String username, Pageable pageable);
 }

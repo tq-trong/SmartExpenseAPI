@@ -16,8 +16,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, String> 
 
     Page<Invitation> findByInvitee(User invitee, Pageable pageable);
 
-    int countByInvitee(User user);
+    @Query("SELECT COUNT(i) FROM Invitation i WHERE i.invitee.username = :username OR i.inviter.username = :username")
+    int countByInviteeOrInviter(@Param("username") String username);
 
-    @Query("SELECT i FROM Invitation i WHERE i.invitee = :invitee AND i.inviter.username LIKE %:inviterUsername%")
-    Page<Invitation> findByInviteeAndInviterUsername(@Param("invitee") User invitee, @Param("inviterUsername") String inviterUsername, Pageable pageable);
+    @Query("SELECT i FROM Invitation i WHERE i.invitee = :invitee OR i.inviter = :invitee AND i.inviter.username LIKE %:username% OR i.invitee.username LIKE %:username%")
+    Page<Invitation> findByInviteeAndInviterUsername(@Param("invitee") User invitee, @Param("username") String username, Pageable pageable);
 }

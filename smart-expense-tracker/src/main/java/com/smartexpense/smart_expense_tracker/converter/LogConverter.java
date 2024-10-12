@@ -13,7 +13,7 @@ public class LogConverter {
     public Log toEntity(LogDTO dto) {
         Log entity = new Log();
 
-        entity.setUser(userConverter.toEntity(dto.getUser()));
+        //entity.setUser(userConverter.toEntity(dto.getUser()));
         entity.setDescription(dto.getDescription());
 
         return entity;

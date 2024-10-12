@@ -4,23 +4,16 @@ import jakarta.validation.constraints.Past;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExpenseDTO {
     private String id;
-    private UserDTO user;
+    private String username;
     private String description;
     private BigDecimal amount;
     private String category;
 
     @Past(message = "DATE_INVALID")
     private LocalDateTime expenseDate;
-
-    private int page = 0;
-    private int totalPage = 0;
-    private int limitItem = 10;
-    private List<ExpenseDTO> listResult = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -30,12 +23,12 @@ public class ExpenseDTO {
         this.id = id;
     }
 
-    public UserDTO getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getDescription() {
@@ -68,37 +61,5 @@ public class ExpenseDTO {
 
     public void setExpenseDate(LocalDateTime expenseDate) {
         this.expenseDate = expenseDate;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getTotalPage() {
-        return totalPage;
-    }
-
-    public int setTotalPage(long totalItems) {
-        return (int) Math.ceil((double) totalItems / limitItem);
-    }
-
-    public int getLimitItem() {
-        return limitItem;
-    }
-
-    public void setLimitItem(int limitItem) {
-        this.limitItem = limitItem;
-    }
-
-    public List<ExpenseDTO> getListResult() {
-        return listResult;
-    }
-
-    public void setListResult(List<ExpenseDTO> listResult) {
-        this.listResult = listResult;
     }
 }

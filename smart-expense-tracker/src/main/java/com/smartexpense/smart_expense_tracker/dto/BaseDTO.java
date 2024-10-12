@@ -1,8 +1,6 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class BaseDTO<T> {
     private String id;

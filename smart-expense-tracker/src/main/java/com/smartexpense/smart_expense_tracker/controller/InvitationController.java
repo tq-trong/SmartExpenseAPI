@@ -9,7 +9,6 @@ import com.smartexpense.smart_expense_tracker.service.IInvitationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @RestController
@@ -36,14 +35,17 @@ public class InvitationController {
 
     @GetMapping
     public ApiResponse<Set<InvitationDTO>> getInvitation(@RequestParam("page") int page,
-                                                         @ModelAttribute SearchRequest input) {
+                                                         @RequestParam(value = "search", required = false) String search) {
         ApiResponse<Set<InvitationDTO>> apiResponse = new ApiResponse<>();
         Pageable pageable = PageRequest.of(page - 1, apiResponse.getLimitItem());
 
-        Set<InvitationDTO> results = invitationService.getInvitations(input.getSearch(), pageable);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setSearch(search);
+
+        Set<InvitationDTO> results = invitationService.getInvitations(searchRequest.getSearch(), pageable);
         apiResponse.setPage(page);
         apiResponse.setResult(results);
-        long totalItems = (long) invitationService.totalItems(input.getSearch(), pageable);
+        long totalItems = invitationService.totalItems(searchRequest.getSearch(), pageable);
 
         apiResponse.setTotalPage(totalItems, apiResponse.getLimitItem());
         return apiResponse;

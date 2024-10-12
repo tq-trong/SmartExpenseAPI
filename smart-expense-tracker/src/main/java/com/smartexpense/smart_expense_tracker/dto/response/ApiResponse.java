@@ -10,7 +10,7 @@ public class ApiResponse<T> {
 
     private int page = 0;
     private int totalPage = 0;
-    private int limitItem = 10;
+    private int limitItem = 1;
 
     public ApiResponse() {
     }

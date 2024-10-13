@@ -1,8 +1,9 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
+import org.springframework.stereotype.Component;
+
 import com.smartexpense.smart_expense_tracker.dto.StatusDTO;
 import com.smartexpense.smart_expense_tracker.entity.Status;
-import org.springframework.stereotype.Component;
 
 @Component
 public class StatusConverter {
@@ -15,6 +16,7 @@ public class StatusConverter {
 
         return entity;
     }
+
     public StatusDTO toDTO(Status entity) {
         StatusDTO dto = new StatusDTO();
         dto.setStatusCode(entity.getStatusCode());

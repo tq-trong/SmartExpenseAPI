@@ -1,17 +1,17 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
-import com.smartexpense.smart_expense_tracker.dto.RoleDTO;
-import com.smartexpense.smart_expense_tracker.entity.Role;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
+import com.smartexpense.smart_expense_tracker.dto.RoleDTO;
+import com.smartexpense.smart_expense_tracker.entity.Role;
 
 @Component
 public class RoleConverter {
     @Autowired
     private PermissionConverter permissionConverter;
-
 
     public Role toEntity(RoleDTO dto) {
         Role entity = new Role();
@@ -27,10 +27,7 @@ public class RoleConverter {
         dto.setDescription(entity.getDescription());
 
         dto.setPermissions(
-                entity.getPermissions().stream()
-                        .map(permissionConverter::toDTO)
-                        .collect(Collectors.toSet())
-        );
+                entity.getPermissions().stream().map(permissionConverter::toDTO).collect(Collectors.toSet()));
 
         return dto;
     }

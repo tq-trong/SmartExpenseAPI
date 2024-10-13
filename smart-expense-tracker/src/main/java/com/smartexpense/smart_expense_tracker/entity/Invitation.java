@@ -1,12 +1,10 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 
 @Entity
-public class Invitation extends Base{
+public class Invitation extends Base {
     @ManyToOne
     private User inviter;
 

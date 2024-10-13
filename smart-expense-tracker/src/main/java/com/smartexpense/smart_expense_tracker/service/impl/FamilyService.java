@@ -1,25 +1,24 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
 import com.smartexpense.smart_expense_tracker.converter.FamilyConverter;
 import com.smartexpense.smart_expense_tracker.converter.UserConverter;
 import com.smartexpense.smart_expense_tracker.dto.FamilyDTO;
-import com.smartexpense.smart_expense_tracker.entity.Family;
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
+import com.smartexpense.smart_expense_tracker.entity.Family;
 import com.smartexpense.smart_expense_tracker.entity.User;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
 import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
 import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IFamilyService;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.smartexpense.smart_expense_tracker.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
-
 
 @Service
 public class FamilyService implements IFamilyService {
@@ -42,9 +41,10 @@ public class FamilyService implements IFamilyService {
     public FamilyDTO updateFamily(String familyId, String username) {
         Family family = familyRepository.findById(familyId).orElseThrow();
 
-        Set<User> users =family.getUser();
+        Set<User> users = family.getUser();
 
-        users.add(userRepository.findByUsername(username)
+        users.add(userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
 
         family.setUser(users);
@@ -57,10 +57,8 @@ public class FamilyService implements IFamilyService {
     @Override
     public FamilyDTO createFamily(FamilyDTO dto) {
         Family family = familyConverter.toEntity(dto);
-        Set<String> userIds = dto.getUsers().stream()
-                .map(UserDTO::getId)
-                .collect(Collectors.toSet());
-        Set<User>  setUsers = userRepository.findAllByIdIn(userIds);
+        Set<String> userIds = dto.getUsers().stream().map(UserDTO::getId).collect(Collectors.toSet());
+        Set<User> setUsers = userRepository.findAllByIdIn(userIds);
         family.setUser(setUsers);
 
         familyRepository.save(family);
@@ -71,19 +69,19 @@ public class FamilyService implements IFamilyService {
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void deleteMember(String username) {
-        User member = userRepository.findByUsername(username)
+        User member =
+                userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        User admin = userRepository
+                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        User admin = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        Family familyOfAdmin = familyRepository.findByUser(admin.getUsername())
+        Family familyOfAdmin = familyRepository
+                .findByUser(admin.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
-        if(familyOfAdmin.getUser().contains(member)) {
+        if (familyOfAdmin.getUser().contains(member)) {
             familyOfAdmin.getUser().remove(member);
             familyRepository.save(familyOfAdmin);
-        }
-        else
-            throw new AppException(ErrorCode.PERMISSION_INVALID);
+        } else throw new AppException(ErrorCode.PERMISSION_INVALID);
     }
 }

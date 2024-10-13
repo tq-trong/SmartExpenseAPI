@@ -1,5 +1,17 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.smartexpense.smart_expense_tracker.converter.FamilyConverter;
 import com.smartexpense.smart_expense_tracker.converter.InvitationConverter;
 import com.smartexpense.smart_expense_tracker.converter.UserConverter;
@@ -11,7 +23,6 @@ import com.smartexpense.smart_expense_tracker.entity.Invitation;
 import com.smartexpense.smart_expense_tracker.entity.Status;
 import com.smartexpense.smart_expense_tracker.entity.User;
 import com.smartexpense.smart_expense_tracker.enums.InvitationStatus;
-import com.smartexpense.smart_expense_tracker.enums.LogAction;
 import com.smartexpense.smart_expense_tracker.enums.Roles;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
@@ -22,22 +33,11 @@ import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IFamilyService;
 import com.smartexpense.smart_expense_tracker.service.IInvitationService;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class InvitationService implements IInvitationService {
     private static final Logger log = LoggerFactory.getLogger(InvitationService.class);
+
     @Autowired
     private InvitationRepository invitationRepository;
 
@@ -69,76 +69,80 @@ public class InvitationService implements IInvitationService {
     public InvitationDTO create(InvitationDTO dto) {
         Invitation invitation = invitationConverter.toEntity(dto);
 
-        User inviter = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+        User inviter = userRepository
+                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if (inviter.getRoles()
-                .stream().anyMatch(role -> role.getName().equalsIgnoreCase(Roles.MEMBER.name()))) {
+        if (inviter.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(Roles.MEMBER.name()))) {
             throw new AppException(ErrorCode.INVITER_CANNOT_INVITE);
         }
 
-        User invitee = userRepository.findByUsername(dto.getInvitee())
+        User invitee = userRepository
+                .findByUsername(dto.getInvitee())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(familyRepository.findByUser(invitee.getUsername()).isPresent())
+        if (familyRepository.findByUser(invitee.getUsername()).isPresent())
             throw new AppException(ErrorCode.INVITEE_HAS_ALREADY_FAMILY);
 
-        Status status = statusRepository.findByStatusCode(InvitationStatus.PENDING.name())
+        Status status = statusRepository
+                .findByStatusCode(InvitationStatus.PENDING.name())
                 .orElseThrow(() -> new AppException(ErrorCode.STATUS_NOT_FOUND));
 
         invitation.setInviter(inviter);
         invitation.setInvitee(invitee);
         invitation.setStatus(status);
 
-        Optional<Invitation> existingInvitation = invitationRepository
-                .findByInviterAndInvitee(invitation.getInviter(), invitee);
-        if (existingInvitation.isPresent())
-            throw new AppException(ErrorCode.ALREADY_INVITED);
+        Optional<Invitation> existingInvitation =
+                invitationRepository.findByInviterAndInvitee(invitation.getInviter(), invitee);
+        if (existingInvitation.isPresent()) throw new AppException(ErrorCode.ALREADY_INVITED);
 
         invitationRepository.save(invitation);
 
         return invitationConverter.toDTO(invitation);
-
     }
 
     @Override
     public InvitationDTO get(String id) {
-        return invitationConverter.toDTO(invitationRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+        return invitationConverter.toDTO(
+                invitationRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
     @Override
     public Set<InvitationDTO> getInvitations(String search, Pageable pageable) {
         User user;
-        user = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+        user = userRepository
+                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Page<Invitation> invitations;
 
         invitations = invitationRepository.findByInviteeAndInviterUsername(user, search, pageable);
 
-        return invitations.stream()
-                .map(invitationConverter::toDTO)
-                .collect(Collectors.toSet());
+        return invitations.stream().map(invitationConverter::toDTO).collect(Collectors.toSet());
     }
 
     @Override
     public InvitationDTO updateInvitation(String id, InvitationDTO dto) {
-        String oldStatus= invitationRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.INVITATION_NOT_EXISTED)).getStatus().getStatusCode();
+        String oldStatus = invitationRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.INVITATION_NOT_EXISTED))
+                .getStatus()
+                .getStatusCode();
 
-        Invitation invitation = invitationConverter.toEntity(invitationRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.INVITATION_NOT_EXISTED)), dto);
-        User invitee = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+        Invitation invitation = invitationConverter.toEntity(
+                invitationRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.INVITATION_NOT_EXISTED)),
+                dto);
+        User invitee = userRepository
+                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if (!invitation.getInvitee().equals(invitee))
-            throw new AppException(ErrorCode.PERMISSION_INVALID);
+        if (!invitation.getInvitee().equals(invitee)) throw new AppException(ErrorCode.PERMISSION_INVALID);
 
         if (!oldStatus.equals(InvitationStatus.PENDING.name()))
             throw new AppException(ErrorCode.UPDATE_PENDING_INVITATION);
 
-        Optional<Family> optionalFamily = familyRepository.findByUser(invitation.getInvitee().getUsername());
+        Optional<Family> optionalFamily =
+                familyRepository.findByUser(invitation.getInvitee().getUsername());
 
         if (optionalFamily.isEmpty()) {
             if (invitation.getStatus().getStatusCode().equals(InvitationStatus.ACCEPTED.name())) {
@@ -169,7 +173,7 @@ public class InvitationService implements IInvitationService {
             familyService.createFamily(familyDTO);
             userService.updateUserRole(inviter, Roles.ADMIN.name());
             userService.updateUserRole(invitee, Roles.MEMBER.name());
-        } else { //Else update invitee to join family
+        } else { // Else update invitee to join family
             Family family = optionalFamily.get();
             FamilyDTO familyDTO = new FamilyDTO();
 
@@ -186,8 +190,11 @@ public class InvitationService implements IInvitationService {
 
     @Override
     public long totalItems(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
+        User user = userRepository
+                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        return invitationRepository.findByInviteeAndInviterUsername(user, username, pageable).getTotalElements();
+        return invitationRepository
+                .findByInviteeAndInviterUsername(user, username, pageable)
+                .getTotalElements();
     }
 }

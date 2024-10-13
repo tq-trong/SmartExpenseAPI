@@ -1,18 +1,17 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 
-import java.util.Set;
-
 @Entity
-public class User extends Base{
+public class User extends Base {
     private String username;
     private String password;
 
     @ManyToMany
     private Set<Role> roles;
-
 
     // Getters and Setters
     public String getUsername() {

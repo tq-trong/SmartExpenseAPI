@@ -1,12 +1,13 @@
 package com.smartexpense.smart_expense_tracker.repository;
 
-import com.smartexpense.smart_expense_tracker.entity.Family;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.smartexpense.smart_expense_tracker.entity.Family;
 
 @Repository
 public interface FamilyRepository extends JpaRepository<Family, String> {

@@ -1,12 +1,12 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 
-import java.util.Set;
-
 @Entity
-public class Family extends Base{
+public class Family extends Base {
     private String name;
 
     @OneToMany

@@ -1,15 +1,17 @@
 package com.smartexpense.smart_expense_tracker.controller;
 
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
 import com.smartexpense.smart_expense_tracker.dto.request.SearchRequest;
 import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
 import com.smartexpense.smart_expense_tracker.service.IFamilyService;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/families")
@@ -28,8 +30,8 @@ public class FamilyController {
     }
 
     @GetMapping
-    public ApiResponse<Set<UserDTO>> getMembersInFamily(@RequestParam("page") int page,
-                                                        @RequestParam(value = "search", required = false) String search) {
+    public ApiResponse<Set<UserDTO>> getMembersInFamily(
+            @RequestParam("page") int page, @RequestParam(value = "search", required = false) String search) {
         ApiResponse<Set<UserDTO>> apiResponse = new ApiResponse<>();
 
         Pageable pageable = PageRequest.of(page - 1, apiResponse.getLimitItem());

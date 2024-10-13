@@ -1,15 +1,16 @@
 package com.smartexpense.smart_expense_tracker.controller;
 
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
 import com.smartexpense.smart_expense_tracker.dto.InvitationDTO;
 import com.smartexpense.smart_expense_tracker.dto.request.SearchRequest;
 import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import com.smartexpense.smart_expense_tracker.service.IInvitationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
 
 @RestController
 @RequestMapping("/invitations")
@@ -26,7 +27,8 @@ public class InvitationController {
     }
 
     @PutMapping("/{invitationId}")
-    public ApiResponse<InvitationDTO> updateInvitation(@PathVariable String invitationId, @RequestBody InvitationDTO request) {
+    public ApiResponse<InvitationDTO> updateInvitation(
+            @PathVariable String invitationId, @RequestBody InvitationDTO request) {
         ApiResponse<InvitationDTO> apiResponse = new ApiResponse<>();
         apiResponse.setResult(invitationService.updateInvitation(invitationId, request));
 
@@ -34,8 +36,8 @@ public class InvitationController {
     }
 
     @GetMapping
-    public ApiResponse<Set<InvitationDTO>> getInvitation(@RequestParam("page") int page,
-                                                         @RequestParam(value = "search", required = false) String search) {
+    public ApiResponse<Set<InvitationDTO>> getInvitation(
+            @RequestParam("page") int page, @RequestParam(value = "search", required = false) String search) {
         ApiResponse<Set<InvitationDTO>> apiResponse = new ApiResponse<>();
         Pageable pageable = PageRequest.of(page - 1, apiResponse.getLimitItem());
 

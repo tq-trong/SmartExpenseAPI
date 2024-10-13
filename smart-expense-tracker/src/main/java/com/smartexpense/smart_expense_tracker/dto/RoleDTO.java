@@ -2,7 +2,7 @@ package com.smartexpense.smart_expense_tracker.dto;
 
 import java.util.Set;
 
-public class RoleDTO{
+public class RoleDTO {
     private String name;
     private String description;
 

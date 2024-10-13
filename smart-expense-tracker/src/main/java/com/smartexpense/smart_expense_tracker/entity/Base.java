@@ -1,8 +1,8 @@
 package com.smartexpense.smart_expense_tracker.entity;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
 
 @MappedSuperclass
 public abstract class Base {

@@ -1,9 +1,8 @@
 package com.smartexpense.smart_expense_tracker.controller;
 
-import com.smartexpense.smart_expense_tracker.dto.LogDTO;
-import com.smartexpense.smart_expense_tracker.dto.request.FilterRequest;
-import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
-import com.smartexpense.smart_expense_tracker.service.ILogService;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.smartexpense.smart_expense_tracker.dto.LogDTO;
+import com.smartexpense.smart_expense_tracker.dto.request.FilterRequest;
+import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
+import com.smartexpense.smart_expense_tracker.service.ILogService;
 
 @RestController
 @RequestMapping("/logs")
@@ -51,20 +52,13 @@ public class LogController {
         // Call service to get Expenses by Filter
         Pageable pageable = PageRequest.of(page - 1, apiResponse.getLimitItem());
         List<LogDTO> logs = logService.getLogs(
-                filter.getUsername(),
-                filter.getStartDate(),
-                filter.getEndDate(),
-                filter.getSearch(),
-                pageable);
+                filter.getUsername(), filter.getStartDate(), filter.getEndDate(), filter.getSearch(), pageable);
 
         apiResponse.setResult(logs);
         apiResponse.setPage(page);
 
-        long totalItems = logService.totalLogs(filter.getUsername(),
-                filter.getStartDate(),
-                filter.getEndDate(),
-                filter.getSearch(),
-                pageable);
+        long totalItems = logService.totalLogs(
+                filter.getUsername(), filter.getStartDate(), filter.getEndDate(), filter.getSearch(), pageable);
         apiResponse.setTotalPage(totalItems, apiResponse.getLimitItem());
 
         return apiResponse;

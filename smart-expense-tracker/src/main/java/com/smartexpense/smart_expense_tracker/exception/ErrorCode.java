@@ -17,13 +17,12 @@ public enum ErrorCode {
     ALREADY_INVITED(1010, "You has already invited this user!", HttpStatus.BAD_REQUEST),
     STATUS_NOT_FOUND(1011, "Status is invalid", HttpStatus.BAD_REQUEST),
     INVITATION_NOT_EXISTED(1012, "This invitation is invalid", HttpStatus.BAD_REQUEST),
-    FAMILY_NOT_EXISTED(1013,"Family not existed", HttpStatus.BAD_REQUEST),
+    FAMILY_NOT_EXISTED(1013, "Family not existed", HttpStatus.BAD_REQUEST),
     UPDATE_PENDING_INVITATION(1014, "Only invitations with status PENDING can be updated!", HttpStatus.BAD_REQUEST),
     UPDATE_ACCEPTED_INVITATION(1015, "You have already family!", HttpStatus.BAD_REQUEST),
     INVITER_CANNOT_INVITE(1016, "You cannot invite others", HttpStatus.BAD_REQUEST),
     EXPENSE_NOT_EXISTED(1017, "Expense not existed!", HttpStatus.BAD_REQUEST),
-    INVITEE_HAS_ALREADY_FAMILY(1018, "This user has already family", HttpStatus.BAD_REQUEST)
-    ;
+    INVITEE_HAS_ALREADY_FAMILY(1018, "This user has already family", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;
     private HttpStatusCode statusCode;

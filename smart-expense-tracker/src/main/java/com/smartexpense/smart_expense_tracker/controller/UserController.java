@@ -1,11 +1,13 @@
 package com.smartexpense.smart_expense_tracker.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
 import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{username}")
-    public ApiResponse<UserDTO>  getUser(@PathVariable("username") String username) {
+    public ApiResponse<UserDTO> getUser(@PathVariable("username") String username) {
         ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.get(username));
 
@@ -38,9 +40,9 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ApiResponse<UserDTO>  updateUser(@PathVariable("userId") String userId, @RequestBody UserDTO dto) {
+    public ApiResponse<UserDTO> updateUser(@PathVariable("userId") String userId, @RequestBody UserDTO dto) {
         ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.update(userId,dto));
+        apiResponse.setResult(userService.update(userId, dto));
 
         return apiResponse;
     }

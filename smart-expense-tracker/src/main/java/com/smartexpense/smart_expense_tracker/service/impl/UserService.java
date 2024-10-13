@@ -1,22 +1,9 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
-import com.smartexpense.smart_expense_tracker.converter.LogConverter;
-import com.smartexpense.smart_expense_tracker.converter.RoleConverter;
-import com.smartexpense.smart_expense_tracker.converter.UserConverter;
-import com.smartexpense.smart_expense_tracker.dto.LogDTO;
-import com.smartexpense.smart_expense_tracker.dto.UserDTO;
-import com.smartexpense.smart_expense_tracker.entity.Family;
-import com.smartexpense.smart_expense_tracker.entity.Log;
-import com.smartexpense.smart_expense_tracker.entity.User;
-import com.smartexpense.smart_expense_tracker.entity.Role;
-import com.smartexpense.smart_expense_tracker.enums.Roles;
-import com.smartexpense.smart_expense_tracker.exception.AppException;
-import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
-import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
-import com.smartexpense.smart_expense_tracker.repository.LogRepository;
-import com.smartexpense.smart_expense_tracker.repository.RoleRepository;
-import com.smartexpense.smart_expense_tracker.repository.UserRepository;
-import com.smartexpense.smart_expense_tracker.service.IUserService;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,41 +13,59 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.smartexpense.smart_expense_tracker.converter.LogConverter;
+import com.smartexpense.smart_expense_tracker.converter.RoleConverter;
+import com.smartexpense.smart_expense_tracker.converter.UserConverter;
+import com.smartexpense.smart_expense_tracker.dto.LogDTO;
+import com.smartexpense.smart_expense_tracker.dto.UserDTO;
+import com.smartexpense.smart_expense_tracker.entity.Family;
+import com.smartexpense.smart_expense_tracker.entity.Log;
+import com.smartexpense.smart_expense_tracker.entity.Role;
+import com.smartexpense.smart_expense_tracker.entity.User;
+import com.smartexpense.smart_expense_tracker.enums.Roles;
+import com.smartexpense.smart_expense_tracker.exception.AppException;
+import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
+import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
+import com.smartexpense.smart_expense_tracker.repository.LogRepository;
+import com.smartexpense.smart_expense_tracker.repository.RoleRepository;
+import com.smartexpense.smart_expense_tracker.repository.UserRepository;
+import com.smartexpense.smart_expense_tracker.service.IUserService;
 
 @Service
 public class UserService implements IUserService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private UserConverter userConverter;
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private RoleConverter roleConverter;
+
     @Autowired
     private FamilyRepository familyRepository;
+
     @Autowired
     private LogConverter logConverter;
+
     @Autowired
     private LogRepository logRepository;
-
 
     @Override
     public UserDTO create(UserDTO dto) {
         User user = new User();
-        if(userRepository.existsByUsername(dto.getUsername()))
-            throw new AppException(ErrorCode.USER_EXISTED);
+        if (userRepository.existsByUsername(dto.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
         user = userConverter.toEntity(dto);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Set<Role> role = new HashSet<>();
-        Role adminRole = roleRepository.findByName(Roles.USER.name())
+        Role adminRole = roleRepository
+                .findByName(Roles.USER.name())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         role.add(adminRole);
         user.setRoles(role);
@@ -73,35 +78,33 @@ public class UserService implements IUserService {
     public UserDTO getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-        User user = userRepository.findByUsername(name).orElseThrow(() ->
-                new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userConverter.toDTO(user);
     }
 
     @Override
     public UserDTO get(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Family family = familyRepository.findByUser(getMyInfo().getUsername())
+        User user =
+                userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Family family = familyRepository
+                .findByUser(getMyInfo().getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
 
-        if(family.getUser().contains(user))
-            return userConverter.toDTO(user);
-        else
-            throw new AppException(ErrorCode.PERMISSION_INVALID);
+        if (family.getUser().contains(user)) return userConverter.toDTO(user);
+        else throw new AppException(ErrorCode.PERMISSION_INVALID);
     }
 
     @PreAuthorize("returnObject.username == authentication.name")
     @Override
     public UserDTO update(String userId, UserDTO userDTO) {
-        User user = userConverter.toEntity(userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)), userDTO);
+        User user = userConverter.toEntity(
+                userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)),
+                userDTO);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        Set<Role> roles = userDTO.getRoles().stream()
-                        .map(roleConverter::toEntity)
-                                .collect(Collectors.toSet());
+        Set<Role> roles =
+                userDTO.getRoles().stream().map(roleConverter::toEntity).collect(Collectors.toSet());
         user.setRoles(new HashSet<>(roles));
         userRepository.save(user);
 
@@ -110,16 +113,14 @@ public class UserService implements IUserService {
 
     @Override
     public void updateUserRole(UserDTO userDTO, String role) {
-        User user = userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("User not found"));
 
         // Delete current roles
         user.getRoles().clear();
 
         // Add new role
         Set<Role> newRoles = new HashSet<>();
-        Role roleUpdate = roleRepository.findByName(role)
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        Role roleUpdate = roleRepository.findByName(role).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         newRoles.add(roleUpdate);
 
@@ -129,40 +130,44 @@ public class UserService implements IUserService {
 
     @Override
     public Set<UserDTO> getMembers(String search, Pageable pageable) {
-        User user = userRepository.findByUsername(getMyInfo().getUsername())
+        User user = userRepository
+                .findByUsername(getMyInfo().getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        Family family = familyRepository.findByUser(user.getUsername())
+        Family family = familyRepository
+                .findByUser(user.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
 
         Page<User> users;
         users = userRepository.findUsersExceptOne(search, family.getId(), user.getUsername(), pageable);
 
-        return users.stream()
-                .map(userConverter::toDTO)
-                .collect(Collectors.toSet());
+        return users.stream().map(userConverter::toDTO).collect(Collectors.toSet());
     }
 
     @Override
     public long totalMembers(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(getMyInfo().getUsername())
+        User user = userRepository
+                .findByUsername(getMyInfo().getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        Family family = familyRepository.findByUser(user.getUsername())
+        Family family = familyRepository
+                .findByUser(user.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
 
-        return userRepository.findUsersExceptOne(username, family.getId(), user.getUsername(), pageable).getTotalElements();
+        return userRepository
+                .findUsersExceptOne(username, family.getId(), user.getUsername(), pageable)
+                .getTotalElements();
     }
 
     @Override
     public LogDTO createLog(String username, String description) {
         Log log = new Log();
-        log.setUser(userRepository.findByUsername(username)
+        log.setUser(userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
         log.setDescription(description);
 
         logRepository.save(log);
         return logConverter.toDTO(log);
     }
-
 }

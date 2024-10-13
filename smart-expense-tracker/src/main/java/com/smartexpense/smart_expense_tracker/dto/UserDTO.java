@@ -1,10 +1,10 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
-import jakarta.validation.constraints.Size;
-
 import java.util.Set;
 
-public class UserDTO extends BaseDTO<UserDTO>{
+import jakarta.validation.constraints.Size;
+
+public class UserDTO extends BaseDTO<UserDTO> {
     @Size(min = 4, message = "USERNAME_INVALID")
     private String username;
 

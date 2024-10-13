@@ -1,6 +1,6 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
-public class PermissionDTO{
+public class PermissionDTO {
     private String name;
     private String description;
 

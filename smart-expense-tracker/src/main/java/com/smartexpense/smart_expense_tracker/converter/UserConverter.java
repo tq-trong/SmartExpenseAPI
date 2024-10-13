@@ -1,12 +1,12 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
-import com.smartexpense.smart_expense_tracker.dto.UserDTO;
-import com.smartexpense.smart_expense_tracker.entity.User;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
+import com.smartexpense.smart_expense_tracker.dto.UserDTO;
+import com.smartexpense.smart_expense_tracker.entity.User;
 
 @Component
 public class UserConverter {
@@ -18,20 +18,15 @@ public class UserConverter {
         entity.setUsername(dto.getUsername());
         entity.setPassword(dto.getPassword());
 
-
         return entity;
     }
 
     public UserDTO toDTO(User entity) {
         UserDTO dto = new UserDTO();
-        if(entity.getId() != null) dto.setId(entity.getId());
+        if (entity.getId() != null) dto.setId(entity.getId());
         dto.setUsername(entity.getUsername());
         dto.setPassword(entity.getPassword());
-        dto.setRoles(
-                entity.getRoles().stream()
-                        .map(roleConverter::toDTO)
-                        .collect(Collectors.toSet())
-        );
+        dto.setRoles(entity.getRoles().stream().map(roleConverter::toDTO).collect(Collectors.toSet()));
         dto.setCreatedDate(entity.getCreatedDate());
 
         return dto;

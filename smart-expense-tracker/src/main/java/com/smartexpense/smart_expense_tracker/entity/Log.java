@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Log extends Base{
+public class Log extends Base {
     @ManyToOne
     private User user;
 

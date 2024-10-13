@@ -1,6 +1,6 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
-public class InvitationDTO extends BaseDTO<InvitationDTO>{
+public class InvitationDTO extends BaseDTO<InvitationDTO> {
     private UserDTO inviter;
     private String invitee;
     private StatusDTO status;

@@ -1,17 +1,19 @@
 package com.smartexpense.smart_expense_tracker.controller;
 
-import com.smartexpense.smart_expense_tracker.dto.ExpenseDTO;
-import com.smartexpense.smart_expense_tracker.dto.request.FilterRequest;
-import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
-import com.smartexpense.smart_expense_tracker.service.IExpenseService;
+import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.smartexpense.smart_expense_tracker.dto.ExpenseDTO;
+import com.smartexpense.smart_expense_tracker.dto.request.FilterRequest;
+import com.smartexpense.smart_expense_tracker.dto.response.ApiResponse;
+import com.smartexpense.smart_expense_tracker.service.IExpenseService;
 
 @RestController
 @RequestMapping("/expenses")
@@ -28,8 +30,8 @@ public class ExpenseController {
     }
 
     @PutMapping("/{expenseId}")
-    public ApiResponse<ExpenseDTO> updateExpense(@PathVariable("expenseId") String expenseId,
-                                                 @RequestBody @Valid ExpenseDTO request) {
+    public ApiResponse<ExpenseDTO> updateExpense(
+            @PathVariable("expenseId") String expenseId, @RequestBody @Valid ExpenseDTO request) {
         ApiResponse<ExpenseDTO> apiResponse = new ApiResponse<>();
         apiResponse.setResult(expenseService.updateExpense(expenseId, request));
 
@@ -85,7 +87,8 @@ public class ExpenseController {
         apiResponse.setResult(expenses);
         apiResponse.setPage(page);
 
-        long totalItems = expenseService.totalExpenses(filter.getUsername(),
+        long totalItems = expenseService.totalExpenses(
+                filter.getUsername(),
                 filter.getStartDate(),
                 filter.getEndDate(),
                 filter.getCategory(),

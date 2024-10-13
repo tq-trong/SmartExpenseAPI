@@ -12,8 +12,7 @@ public class ApiResponse<T> {
     private int totalPage = 0;
     private int limitItem = 1;
 
-    public ApiResponse() {
-    }
+    public ApiResponse() {}
 
     public ApiResponse(int code, String message, T result, int page, int totalPage, int limitItem) {
         this.code = code;
@@ -71,5 +70,4 @@ public class ApiResponse<T> {
     public void setLimitItem(int limitItem) {
         this.limitItem = limitItem;
     }
-
 }

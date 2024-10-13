@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 public class Status {
     @Id
     private String statusCode;
+
     private String description;
 
     public String getStatusCode() {

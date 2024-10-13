@@ -1,8 +1,9 @@
 package com.smartexpense.smart_expense_tracker.converter;
 
+import org.springframework.stereotype.Component;
+
 import com.smartexpense.smart_expense_tracker.dto.PermissionDTO;
 import com.smartexpense.smart_expense_tracker.entity.Permission;
-import org.springframework.stereotype.Component;
 
 @Component
 public class PermissionConverter {

@@ -1,9 +1,9 @@
 package com.smartexpense.smart_expense_tracker.dto;
 
-import jakarta.validation.constraints.Past;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.Past;
 
 public class ExpenseDTO {
     private String id;

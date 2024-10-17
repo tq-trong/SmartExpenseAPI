@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,8 +58,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO create(UserDTO dto) {
-        User user = new User();
-        if (userRepository.existsByUsername(dto.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
+        User user;
         user = userConverter.toEntity(dto);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -69,8 +69,12 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         role.add(adminRole);
         user.setRoles(role);
+        try {
+            userRepository.save(user);
+        } catch(DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
 
-        userRepository.save(user);
         return userConverter.toDTO(user);
     }
 

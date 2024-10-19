@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error!", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_EXISTED(1001, "User existed!", HttpStatus.BAD_REQUEST),
-    USER_NOT_EXISTED(1002, "User not existed!", HttpStatus.NOT_FOUND),
+    USER_NOT_EXISTED(1002, "User not existed!", HttpStatus.UNAUTHORIZED),
     USERNAME_INVALID(1003, "Username must be at least 4 characters!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1004, "Password must be at least 6 characters!", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1005, "Unauthenticated!", HttpStatus.UNAUTHORIZED),
@@ -22,7 +22,8 @@ public enum ErrorCode {
     UPDATE_ACCEPTED_INVITATION(1015, "You have already family!", HttpStatus.BAD_REQUEST),
     INVITER_CANNOT_INVITE(1016, "You cannot invite others", HttpStatus.BAD_REQUEST),
     EXPENSE_NOT_EXISTED(1017, "Expense not existed!", HttpStatus.BAD_REQUEST),
-    INVITEE_HAS_ALREADY_FAMILY(1018, "This user has already family", HttpStatus.BAD_REQUEST);
+    INVITEE_HAS_ALREADY_FAMILY(1018, "This user has already family", HttpStatus.BAD_REQUEST),
+    FAIL_LOGIN(1019, "Username or password is incorrect!", HttpStatus.UNAUTHORIZED);
     private int code;
     private String message;
     private HttpStatusCode statusCode;

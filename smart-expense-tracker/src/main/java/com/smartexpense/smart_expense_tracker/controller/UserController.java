@@ -46,4 +46,12 @@ public class UserController {
 
         return apiResponse;
     }
+
+    @GetMapping("/checkFamily")
+    public ApiResponse<Boolean> checkUserHasFamily() {
+        ApiResponse<Boolean> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.checkUserHasFamily());
+
+        return apiResponse;
+    }
 }

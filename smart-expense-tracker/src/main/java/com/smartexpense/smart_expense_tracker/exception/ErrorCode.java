@@ -9,7 +9,7 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1002, "User not existed!", HttpStatus.NOT_FOUND),
     USERNAME_INVALID(1003, "Username must be at least 4 characters!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1004, "Password must be at least 6 characters!", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(1005, "Username or Password is wrong!", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED(1005, "Unauthenticated!", HttpStatus.UNAUTHORIZED),
     DATE_INVALID(1006, "Date is invalid!", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     ROLE_NOT_FOUND(1008, "Role is invalid", HttpStatus.BAD_REQUEST),

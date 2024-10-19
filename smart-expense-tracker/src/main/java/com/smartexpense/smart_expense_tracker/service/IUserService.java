@@ -19,4 +19,6 @@ public interface IUserService extends IBaseService<UserDTO> {
     long totalMembers(String username, Pageable pageable);
 
     LogDTO createLog(String username, String description);
+
+    boolean checkUserHasFamily();
 }

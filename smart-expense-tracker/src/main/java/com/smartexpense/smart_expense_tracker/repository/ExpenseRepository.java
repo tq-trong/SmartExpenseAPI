@@ -1,6 +1,7 @@
 package com.smartexpense.smart_expense_tracker.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,55 @@ public interface ExpenseRepository extends JpaRepository<Expense, String> {
             @Param("category") String category,
             @Param("search") String search,
             Pageable pageable);
+
+    @Query("SELECT e.user.username, SUM(e.amount) FROM Expense e " + "JOIN Family f ON e.user MEMBER OF f.user "
+            + "WHERE  f.id = :familyId "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.user.username")
+    List<Object[]> findUserExpenseSummary(
+            @Param("familyId") String familyId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT e.user.username, e.expenseDate, SUM(e.amount) FROM Expense e "
+            + "JOIN Family f ON e.user MEMBER OF f.user "
+            + "WHERE  f.id = :familyId "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.user.username, e.expenseDate "
+            + "ORDER BY e.expenseDate")
+    List<Object[]> findUserExpenseOverTime(
+            @Param("familyId") String familyId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT e.category, SUM(e.amount) FROM Expense e " + "JOIN Family f ON e.user MEMBER OF f.user "
+            + "WHERE  f.id = :familyId "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.category")
+    List<Object[]> findCategoryExpenseSummary(
+            @Param("familyId") String familyId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT e.category, e.expenseDate, SUM(e.amount) FROM Expense e "
+            + "JOIN Family f ON e.user MEMBER OF f.user "
+            + "WHERE  f.id = :familyId "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.category, e.expenseDate "
+            + "ORDER BY e.expenseDate")
+    List<Object[]> findCategoryExpenseOverTime(
+            @Param("familyId") String familyId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT e.category, SUM(e.amount) FROM Expense e " + "WHERE  e.user.username = :username "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.category")
+    List<Object[]> findCategoryExpenseSummaryByUser(
+            @Param("username") String username,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT e.category, e.expenseDate, SUM(e.amount) FROM Expense e " + "WHERE  e.user.username = :username "
+            + "AND e.expenseDate BETWEEN :startDate AND :endDate GROUP BY e.category, e.expenseDate "
+            + "ORDER BY e.expenseDate")
+    List<Object[]> findCategoryExpenseOverTimeByUser(
+            @Param("username") String username,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

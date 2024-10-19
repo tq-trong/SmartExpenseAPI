@@ -1,6 +1,7 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,7 +72,7 @@ public class UserService implements IUserService {
         user.setRoles(role);
         try {
             userRepository.save(user);
-        } catch(DataIntegrityViolationException exception) {
+        } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -173,5 +174,15 @@ public class UserService implements IUserService {
 
         logRepository.save(log);
         return logConverter.toDTO(log);
+    }
+
+    @Override
+    public boolean checkUserHasFamily() {
+        User user = userRepository
+                .findByUsername(getMyInfo().getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
+        return optionalFamily.isPresent();
     }
 }

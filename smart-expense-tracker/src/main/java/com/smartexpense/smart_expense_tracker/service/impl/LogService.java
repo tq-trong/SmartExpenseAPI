@@ -3,6 +3,7 @@ package com.smartexpense.smart_expense_tracker.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,13 @@ public class LogService implements ILogService {
     @Override
     public List<LogDTO> getLogs(
             String userFilter, LocalDate startDate, LocalDate endDate, String search, Pageable pageable) {
+        return getPageLog(userFilter, startDate, endDate, search, pageable).stream()
+                .map(logConverter::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Page<Log> getPageLog(
+            String userFilter, LocalDate startDate, LocalDate endDate, String search, Pageable pageable) {
         User user = userRepository
                 .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -57,6 +65,8 @@ public class LogService implements ILogService {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
 
+        if (Objects.equals(userFilter, "all")) userFilter = null;
+
         Page<Log> pageLogs;
         if (optionalFamily.isPresent())
             pageLogs = logRepository.getLogsAllMembers(
@@ -65,29 +75,11 @@ public class LogService implements ILogService {
             pageLogs = logRepository.getLogsWithoutFamily(
                     search, user.getUsername(), startDateTime, endDateTime, pageable);
 
-        return pageLogs.getContent().stream().map(logConverter::toDTO).collect(Collectors.toList());
+        return pageLogs;
     }
 
     @Override
     public long totalLogs(String userFilter, LocalDate startDate, LocalDate endDate, String search, Pageable pageable) {
-        User user = userRepository
-                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
-
-        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
-        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
-
-        Page<Log> pageLogs;
-
-        if (optionalFamily.isPresent())
-            pageLogs = logRepository.getLogsAllMembers(
-                    optionalFamily.get().getId(), userFilter, startDateTime, endDateTime, search, pageable);
-        else
-            pageLogs = logRepository.getLogsWithoutFamily(
-                    search, user.getUsername(), startDateTime, endDateTime, pageable);
-
-        return pageLogs.getTotalElements();
+        return getPageLog(userFilter, startDate, endDate, search, pageable).getTotalElements();
     }
 }

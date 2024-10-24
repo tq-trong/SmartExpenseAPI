@@ -1,6 +1,6 @@
 package com.smartexpense.smart_expense_tracker.repository;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +14,12 @@ import com.smartexpense.smart_expense_tracker.entity.User;
 
 @Repository
 public interface InvitationRepository extends JpaRepository<Invitation, String> {
-    Optional<Invitation> findByInviterAndInvitee(User inviter, User invitee);
-
-    Page<Invitation> findByInvitee(User invitee, Pageable pageable);
-
-    @Query("SELECT COUNT(i) FROM Invitation i WHERE i.invitee.username = :username OR i.inviter.username = :username")
-    int countByInviteeOrInviter(@Param("username") String username);
+    @Query("SELECT i FROM Invitation i WHERE i.inviter = :inviter AND i.invitee = :invitee")
+    List<Invitation> findByInviterAndInvitee(User inviter, User invitee);
 
     @Query(
-            "SELECT i FROM Invitation i WHERE i.invitee = :invitee OR i.inviter = :invitee AND i.inviter.username LIKE %:username% OR i.invitee.username LIKE %:username%")
+            "SELECT i FROM Invitation i WHERE (i.invitee = :invitee OR i.inviter = :invitee) AND (i.inviter.username LIKE %:username% OR i.invitee.username LIKE %:username%) "
+                    + "ORDER BY i.createdDate DESC")
     Page<Invitation> findByInviteeAndInviterUsername(
             @Param("invitee") User invitee, @Param("username") String username, Pageable pageable);
 }

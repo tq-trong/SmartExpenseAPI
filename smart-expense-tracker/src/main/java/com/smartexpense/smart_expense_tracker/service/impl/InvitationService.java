@@ -1,8 +1,6 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -92,9 +90,14 @@ public class InvitationService implements IInvitationService {
         invitation.setInvitee(invitee);
         invitation.setStatus(status);
 
-        Optional<Invitation> existingInvitation =
+        List<Invitation> existingInvitations =
                 invitationRepository.findByInviterAndInvitee(invitation.getInviter(), invitee);
-        if (existingInvitation.isPresent()) throw new AppException(ErrorCode.ALREADY_INVITED);
+
+        // Kiểm tra nếu danh sách không rỗng và trạng thái là PENDING
+        if (existingInvitations.stream()
+                .anyMatch(inv -> Objects.equals(inv.getStatus().getStatusCode(), InvitationStatus.PENDING.name()))) {
+            throw new AppException(ErrorCode.ALREADY_INVITED);
+        }
 
         invitationRepository.save(invitation);
 
@@ -109,6 +112,12 @@ public class InvitationService implements IInvitationService {
 
     @Override
     public Set<InvitationDTO> getInvitations(String search, Pageable pageable) {
+        return getPageInvitation(search, pageable).stream()
+                .map(invitationConverter::toDTO)
+                .collect(Collectors.toSet());
+    }
+
+    public Page<Invitation> getPageInvitation(String search, Pageable pageable) {
         User user;
         user = userRepository
                 .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
@@ -118,7 +127,7 @@ public class InvitationService implements IInvitationService {
 
         invitations = invitationRepository.findByInviteeAndInviterUsername(user, search, pageable);
 
-        return invitations.stream().map(invitationConverter::toDTO).collect(Collectors.toSet());
+        return invitations;
     }
 
     @Override
@@ -190,11 +199,6 @@ public class InvitationService implements IInvitationService {
 
     @Override
     public long totalItems(String username, Pageable pageable) {
-        User user = userRepository
-                .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        return invitationRepository
-                .findByInviteeAndInviterUsername(user, username, pageable)
-                .getTotalElements();
+        return getPageInvitation(username, pageable).getTotalElements();
     }
 }

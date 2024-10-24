@@ -18,6 +18,8 @@ public interface IExpenseService extends IBaseService<ExpenseDTO> {
 
     ExpenseDTO updateExpense(String expenseId, ExpenseDTO dto);
 
+    List<String> getAllCategoryByFamily();
+
     void deleteExpense(String expenseId);
 
     long totalExpenses(

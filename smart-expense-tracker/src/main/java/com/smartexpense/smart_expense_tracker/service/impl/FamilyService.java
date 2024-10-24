@@ -1,5 +1,6 @@
 package com.smartexpense.smart_expense_tracker.service.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,10 +13,13 @@ import com.smartexpense.smart_expense_tracker.converter.UserConverter;
 import com.smartexpense.smart_expense_tracker.dto.FamilyDTO;
 import com.smartexpense.smart_expense_tracker.dto.UserDTO;
 import com.smartexpense.smart_expense_tracker.entity.Family;
+import com.smartexpense.smart_expense_tracker.entity.Role;
 import com.smartexpense.smart_expense_tracker.entity.User;
+import com.smartexpense.smart_expense_tracker.enums.Roles;
 import com.smartexpense.smart_expense_tracker.exception.AppException;
 import com.smartexpense.smart_expense_tracker.exception.ErrorCode;
 import com.smartexpense.smart_expense_tracker.repository.FamilyRepository;
+import com.smartexpense.smart_expense_tracker.repository.RoleRepository;
 import com.smartexpense.smart_expense_tracker.repository.UserRepository;
 import com.smartexpense.smart_expense_tracker.service.IFamilyService;
 import com.smartexpense.smart_expense_tracker.service.IUserService;
@@ -36,6 +40,9 @@ public class FamilyService implements IFamilyService {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public FamilyDTO updateFamily(String familyId, String username) {
@@ -81,6 +88,14 @@ public class FamilyService implements IFamilyService {
                 .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
         if (familyOfAdmin.getUser().contains(member)) {
             familyOfAdmin.getUser().remove(member);
+            Set<Role> role = new HashSet<>();
+            Role userRole = roleRepository
+                    .findByName(Roles.USER.name())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+            role.add(userRole);
+            member.setRoles(role);
+
+            userRepository.save(member);
             familyRepository.save(familyOfAdmin);
         } else throw new AppException(ErrorCode.PERMISSION_INVALID);
     }

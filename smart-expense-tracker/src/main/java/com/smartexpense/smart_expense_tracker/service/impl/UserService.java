@@ -135,6 +135,10 @@ public class UserService implements IUserService {
 
     @Override
     public Set<UserDTO> getMembers(String search, Pageable pageable) {
+        return getPageUser(search, pageable).stream().map(userConverter::toDTO).collect(Collectors.toSet());
+    }
+
+    public Page<User> getPageUser(String search, Pageable pageable) {
         User user = userRepository
                 .findByUsername(getMyInfo().getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -146,22 +150,12 @@ public class UserService implements IUserService {
         Page<User> users;
         users = userRepository.findUsersExceptOne(search, family.getId(), user.getUsername(), pageable);
 
-        return users.stream().map(userConverter::toDTO).collect(Collectors.toSet());
+        return users;
     }
 
     @Override
     public long totalMembers(String username, Pageable pageable) {
-        User user = userRepository
-                .findByUsername(getMyInfo().getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        Family family = familyRepository
-                .findByUser(user.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
-
-        return userRepository
-                .findUsersExceptOne(username, family.getId(), user.getUsername(), pageable)
-                .getTotalElements();
+        return getPageUser(username, pageable).getTotalElements();
     }
 
     @Override
@@ -184,5 +178,22 @@ public class UserService implements IUserService {
 
         Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
         return optionalFamily.isPresent();
+    }
+
+    @Override
+    public Set<String> findAllUserByFamily() {
+        User user = userRepository
+                .findByUsername(getMyInfo().getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
+
+        Set<String> setUsers = new HashSet<>();
+
+        if (optionalFamily.isPresent())
+            setUsers = userRepository.findAllUserByFamily(optionalFamily.get().getId());
+        else setUsers.add(user.getUsername());
+
+        return setUsers;
     }
 }

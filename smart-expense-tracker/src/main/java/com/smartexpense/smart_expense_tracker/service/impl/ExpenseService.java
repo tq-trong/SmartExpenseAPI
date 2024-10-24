@@ -2,7 +2,10 @@ package com.smartexpense.smart_expense_tracker.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,20 +56,26 @@ public class ExpenseService implements IExpenseService {
             String category,
             String search,
             Pageable pageable) {
+
+        return getPageExpense(userFilter, startDate, endDate, category, search, pageable).stream()
+                .map(expenseConverter::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getAllCategoryByFamily() {
         User user = userRepository
                 .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Family family = familyRepository
-                .findByUser(user.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+        Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
 
-        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
-        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        List<String> listCategory = new ArrayList<>();
 
-        Page<Expense> expensesPage = expenseRepository.getExpense(
-                family.getId(), userFilter, startDateTime, endDateTime, category, search, pageable);
-
-        return expensesPage.getContent().stream().map(expenseConverter::toDTO).collect(Collectors.toList());
+        if (optionalFamily.isPresent())
+            listCategory = expenseRepository.findAllCategoryByFamily(
+                    optionalFamily.get().getId());
+        else listCategory = expenseRepository.findAllCategoryByUser(user.getUsername());
+        return listCategory;
     }
 
     @Override
@@ -115,20 +124,38 @@ public class ExpenseService implements IExpenseService {
             String category,
             String search,
             Pageable pageable) {
+
+        return getPageExpense(userFilter, startDate, endDate, category, search, pageable)
+                .getTotalElements();
+    }
+
+    public Page<Expense> getPageExpense(
+            String userFilter,
+            LocalDate startDate,
+            LocalDate endDate,
+            String category,
+            String search,
+            Pageable pageable) {
         User user = userRepository
                 .findByUsername(userConverter.toEntity(userService.getMyInfo()).getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Family family = familyRepository
-                .findByUser(user.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.FAMILY_NOT_EXISTED));
+
+        if (Objects.equals(userFilter, "all")) userFilter = null;
+        if (Objects.equals(category, "all")) category = null;
+
+        Optional<Family> optionalFamily = familyRepository.findByUser(user.getUsername());
 
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
-
-        Page<Expense> expensesPage = expenseRepository.getExpense(
-                family.getId(), userFilter, startDateTime, endDateTime, category, search, pageable);
-
-        return expensesPage.getTotalElements();
+        Page<Expense> expensesPage;
+        if (optionalFamily.isPresent()) {
+            expensesPage = expenseRepository.getExpense(
+                    optionalFamily.get().getId(), userFilter, startDateTime, endDateTime, category, search, pageable);
+        } else {
+            expensesPage = expenseRepository.getExpenseWithoutFamily(
+                    user.getUsername(), startDateTime, endDateTime, category, search, pageable);
+        }
+        return expensesPage;
     }
 
     @Override
@@ -146,6 +173,9 @@ public class ExpenseService implements IExpenseService {
 
     @Override
     public ExpenseDTO get(String id) {
-        return null;
+        Expense expense =
+                expenseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EXPENSE_NOT_EXISTED));
+        System.out.println(expense.getId() + expense.getDescription());
+        return expenseConverter.toDTO(expense);
     }
 }

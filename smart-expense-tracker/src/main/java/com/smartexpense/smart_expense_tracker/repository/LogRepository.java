@@ -19,7 +19,8 @@ public interface LogRepository extends JpaRepository<Log, String> {
             + "AND (:username IS NULL OR u.username = :username) "
             + "AND (:startDate IS NULL OR l.createdDate >= :startDate) "
             + "AND (:endDate IS NULL OR l.createdDate <= :endDate) "
-            + "AND (:search IS NULL OR l.description LIKE CONCAT('%', :search, '%'))")
+            + "AND (:search IS NULL OR l.description LIKE CONCAT('%', :search, '%')) "
+            + "ORDER BY l.createdDate DESC")
     Page<Log> getLogsAllMembers(
             @Param("familyId") String familyId,
             @Param("username") String username,
@@ -32,7 +33,8 @@ public interface LogRepository extends JpaRepository<Log, String> {
             + "WHERE u.username = :username "
             + "AND (:startDate IS NULL OR l.createdDate >= :startDate) "
             + "AND (:endDate IS NULL OR l.createdDate <= :endDate) "
-            + "AND (:search IS NULL OR l.description LIKE CONCAT('%', :search, '%'))")
+            + "AND (:search IS NULL OR l.description LIKE CONCAT('%', :search, '%')) "
+            + "ORDER BY l.createdDate DESC")
     Page<Log> getLogsWithoutFamily(
             @Param("search") String search,
             @Param("username") String username,

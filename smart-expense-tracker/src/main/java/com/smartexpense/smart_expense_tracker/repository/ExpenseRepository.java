@@ -14,16 +14,40 @@ import com.smartexpense.smart_expense_tracker.entity.Expense;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, String> {
+    @Query("SELECT e.category FROM Expense e " + "JOIN Family f ON e.user MEMBER OF f.user "
+            + "WHERE  f.id = :familyId "
+            + "GROUP BY e.category")
+    List<String> findAllCategoryByFamily(@Param("familyId") String familyId);
+
+    @Query("SELECT DISTINCT(e.category) FROM Expense e " + "WHERE  e.user.username = :username ")
+    List<String> findAllCategoryByUser(@Param("username") String username);
+
     @Query("SELECT e FROM Expense e " + "JOIN e.user u "
             + "JOIN Family f ON u MEMBER OF f.user "
             + "WHERE f.id = :familyId "
             + "AND (:username IS NULL OR u.username = :username) "
             + "AND (:startDate IS NULL OR e.expenseDate >= :startDate) "
             + "AND (:endDate IS NULL OR e.expenseDate <= :endDate) "
-            + "AND (:category IS NULL OR e.category LIKE CONCAT('%', :category, '%')) "
-            + "AND (:search IS NULL OR e.description LIKE CONCAT('%', :search, '%'))")
+            + "AND (:category IS NULL OR e.category = :category) "
+            + "AND (:search IS NULL OR e.description LIKE CONCAT('%', :search, '%')) "
+            + "ORDER BY e.expenseDate DESC")
     Page<Expense> getExpense(
             @Param("familyId") String familyId,
+            @Param("username") String username,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("category") String category,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("SELECT e FROM Expense e " + "JOIN e.user u "
+            + "WHERE u.username = :username "
+            + "AND (:startDate IS NULL OR e.expenseDate >= :startDate) "
+            + "AND (:endDate IS NULL OR e.expenseDate <= :endDate) "
+            + "AND (:category IS NULL OR e.category = :category) "
+            + "AND (:search IS NULL OR e.description LIKE CONCAT('%', :search, '%')) "
+            + "ORDER BY e.expenseDate DESC")
+    Page<Expense> getExpenseWithoutFamily(
             @Param("username") String username,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,

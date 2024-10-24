@@ -27,4 +27,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             @Param("familyId") String familyId,
             @Param("username") String username,
             Pageable pageable);
+
+    @Query("SELECT u.username FROM Family f JOIN f.user u WHERE f.id = :familyId")
+    Set<String> findAllUserByFamily(@Param("familyId") String familyId);
 }

@@ -21,4 +21,6 @@ public interface IUserService extends IBaseService<UserDTO> {
     LogDTO createLog(String username, String description);
 
     boolean checkUserHasFamily();
+
+    Set<String> findAllUserByFamily();
 }

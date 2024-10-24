@@ -98,4 +98,20 @@ public class ExpenseController {
 
         return apiResponse;
     }
+
+    @GetMapping("/categories")
+    public ApiResponse<List<String>> findAllCategoryByFamily() {
+        ApiResponse<List<String>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(expenseService.getAllCategoryByFamily());
+
+        return apiResponse;
+    }
+
+    @GetMapping("/{expenseId}")
+    public ApiResponse<ExpenseDTO> getExpenseById(@PathVariable("expenseId") String expenseId) {
+        ApiResponse<ExpenseDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(expenseService.get(expenseId));
+
+        return apiResponse;
+    }
 }
